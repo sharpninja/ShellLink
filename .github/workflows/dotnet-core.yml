@@ -20,6 +20,10 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.301
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
     - name: Install dependencies
       run: dotnet restore ./Securify.ShellLink.csproj
     - name: Build
