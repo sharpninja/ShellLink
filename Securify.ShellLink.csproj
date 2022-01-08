@@ -10,8 +10,8 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageProjectUrl>https://github.com/securifybv/ShellLink</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/securifybv/ShellLink.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/sharpninja/ShellLink</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/sharpninja/ShellLink.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageId>Securify.ShellLink</PackageId>
     <AssemblyName>Securify.ShellLink</AssemblyName>
@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Securify.PropertyStore" Version="1.1.0" />
+    <PackageReference Include="Securify.PropertyStore" Version="1.2.1" />
   </ItemGroup>
 
 </Project>
