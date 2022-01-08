@@ -65,7 +65,7 @@ jobs:
     - name: Install dependencies
       run: |
         $endpoint="https://nuget.pkg.github.com/${env:OWNER}/index.json"
-        dotnet nuget add source --name github $endpoint --user $env:USER --password $env:PASSWORD --store-password-in-clear-text
+        dotnet nuget add source --name github $endpoint --username $env:USER --password $env:PASSWORD --store-password-in-clear-text
         dotnet restore -s nuget
       
     - name: Build
