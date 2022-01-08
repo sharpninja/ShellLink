@@ -9,19 +9,76 @@ on:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    env:
+      WORKSPACE: ${{ github.workspace }}
+      CSPROJ: ${{ github.workspace }}\Securify.ShellLink.csproj
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      OWNER: sharpninja
+      
+    runs-on: windows-2022
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        submodules: true
+    - uses: actions/checkout@v2
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
+        
+    - name: Setup Scoop
+      run: |
+        if(-not (Test-Path $env:CSPROJ -ErrorAction Stop)) { throw "${env:CSPROJ} does not exist." }
+        try {
+          git config --global user.email "ninja@thesharp.ninja"
+          git config --global user.name "GitHub on behalf of Sharp Ninja"
+          git fetch --unshallow
+          iwr -useb get.scoop.sh | iex
+          scoop install gitversion
+
+          if(-not (Test-Path GitVersion.yml)) {
+            $yml = @(
+              'assembly-versioning-scheme: MajorMinorPatch',
+              'mode: ContinuousDelivery',
+              'next-version: 1.2.0',
+              'branches: {}',
+              'ignore:',
+              '  sha: []',
+              'merge-message-formats: {}'
+            )
+
+            $yml | out-file GitVersion.yml
+
+            git add .
+            git commit -m "Added gitversion config."
+            git push "https://sharpninja:${env:GITHUB_TOKEN}@github.com/sharpninja/PropertyStore.git"
+          }        
+          GitVersion
+          
+        } catch {
+          $e=$_
+          Write-Error "Error initializing GitVersion."
+          Write-Error $e
+          throw $e
+        }
+        
     - name: Install dependencies
-      run: dotnet restore ./Securify.ShellLink.csproj
+      run: dotnet restore
+      
     - name: Build
-      run: dotnet build --configuration Release --no-restore ./Securify.ShellLink.csproj
+      run: dotnet build --configuration Release --no-restore
+      
+    - name: Test
+      run: dotnet test --configuration Release --no-build --verbosity quiet
+      
+    - name: Push generated package to GitHub registry
+      run: |
+        $out="${env:WORKSPACE}\out"
+        $packages="${out}\*.nupkg"
+        dotnet pack --configuration Release --no-build -o $out
+        $pkgs=Get-ChildItem $packages -ErrorAction Stop
+        if($pkgs) {
+          $endpoint="https://nuget.pkg.github.com/${env:OWNER}/index.json"
+          dotnet nuget add source --name github $endpoint 
+          dotnet nuget push $pkgs.FullName --api-key $env:GITHUB_TOKEN --skip-duplicate --no-symbols true --source github
+        } else {
+          throw "$pkgs return no results."
+        }
