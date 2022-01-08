@@ -14,6 +14,8 @@ jobs:
       CSPROJ: ${{ github.workspace }}\Securify.ShellLink.csproj
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       OWNER: sharpninja
+      USER: sharpninja
+      PASSWORD: ${{ secrets.GITHUB_TOKEN }}
       
     runs-on: windows-2022
 
@@ -63,8 +65,8 @@ jobs:
     - name: Install dependencies
       run: |
         $endpoint="https://nuget.pkg.github.com/${env:OWNER}/index.json"
-        dotnet nuget add source --name github $endpoint 
-        dotnet restore -s nuget --apiKey $env:GITHUB_TOKEN
+        dotnet nuget add source --name github $endpoint --user $env:USER --password $env:PASSWORD --store-password-in-clear-text
+        dotnet restore -s nuget
       
     - name: Build
       run: dotnet build --configuration Release --no-restore
