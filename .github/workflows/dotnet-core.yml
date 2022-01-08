@@ -61,7 +61,10 @@ jobs:
         }
         
     - name: Install dependencies
-      run: dotnet restore
+      run: |
+        $endpoint="https://nuget.pkg.github.com/${env:OWNER}/index.json"
+        dotnet nuget add source --name github $endpoint 
+        dotnet restore -s nuget --apiKey $env:GITHUB_TOKEN
       
     - name: Build
       run: dotnet build --configuration Release --no-restore
